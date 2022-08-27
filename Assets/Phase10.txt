@@ -1,0 +1,30 @@
+PHASE 10 Multiplayer
+
+96 Zahlenkarten
+	
+	1-12	rot 
+	1-12 
+	
+	1-12	blau
+	1-12
+	
+	1-12	gelb
+	1-12
+	
+	1-12	grün
+	1-12
+	
+	=> Jeder Wert ist zweimal enthalten
+	
+8 Joker
+
+4 Aussetzer
+
+Der Server speichert den Fortschritt jedes einzelnen Spielers
+
+
+Problem: when i synchronize the ui hand cards
+		 there is jerky movement on the second client,
+		 
+		 so better leave it.
+		

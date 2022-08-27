@@ -1,0 +1,4 @@
+repository "Phase10Backup@FishFace@cloud"
+  path "/"
+    br "/main"
+    co "/main"
