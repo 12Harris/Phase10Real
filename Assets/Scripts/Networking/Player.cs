@@ -25,9 +25,7 @@ public class Player : NetworkBehaviour
 
     GameObject rightCard = null;
 
-    UICardData card;
-
-    Card discardCard;
+    Card newCard;
 
     public GameObject handDisplayPrefab;
 
@@ -57,12 +55,14 @@ public class Player : NetworkBehaviour
 
     public void Play()
     {
-        //If we click on the top dicardCard from the sicard pile we remove it from it
+        //If we click on the top dicardCard from the discard pile we remove it from it and add it to the player hand
         if(UIManager.instance.discardCard.GetComponent<DragDrop>().clicked)
         {
+            Debug.Log("clicked on discard card");
+
             cmdPopCardFromDiscardPile();
 
-            AddCardToHand(discardCard);
+            AddCardToHand(newCard);
 
             //If the discard pile has conains more than 1 card then update it
 
@@ -74,27 +74,75 @@ public class Player : NetworkBehaviour
 
             UIManager.instance.discardCard.GetComponent<DragDrop>().clicked = false;
         }
+
+        
+        //we clicked on the deck so draw a card from the deck to the player hand
+        else if(UIManager.instance.UIDeck.GetComponent<DragDrop>().clicked)
+        {
+            Debug.Log("clicked on deck");
+
+            cmdDrawCardFromDeck();
+
+            AddCardToHand(newCard);
+
+            if(CardManager.instance.cards.Count > 0)
+                UIManager.instance.UpdateUIDeck();
+            
+            else
+                rpcDeactivateUIDeck();
+
+            UIManager.instance.UIDeck.GetComponent<DragDrop>().clicked = false;   
+        }
+        
         Debug.Log("Player " + name + " is playing");
+    }
+
+    [Command]
+    public void cmdDrawCardFromDeck()
+    {
+        newCard = CardManager.instance.cards[0];
+        CardManager.instance.cards.Remove(CardManager.instance.cards[0]);
+
+        rpcSetDiscardCard(newCard);
     }
 
     [Command]
     public void cmdPopCardFromDiscardPile()
     {
-        discardCard = CardManager.instance.discardPile.Pop();
+        newCard = CardManager.instance.discardPile.Pop();
 
-        rpcSetDiscardCard(discardCard);
+        rpcSetDiscardCard(newCard);
     }
 
     [ClientRpc]
     public void rpcSetDiscardCard(Card card)
     {
-        discardCard = card;
+        newCard = card;
+    }
+
+
+    [Command]
+    public void cmdDeactivateDiscardCard()
+    {
+       rpcDeactivateDiscardCard();
+    }
+
+    [Command]
+    public void cmdDeactivateUIDeck()
+    {
+       rpcDeactivateUIDeck();
     }
 
     [ClientRpc]
     public void rpcDeactivateDiscardCard()
     {
         UIManager.instance.discardCard.SetActive(false);
+    }
+
+    [ClientRpc]
+    public void rpcDeactivateUIDeck()
+    {
+        UIManager.instance.UIDeck.SetActive(false);
     }
 
     public void AddCardToHand(Card card)

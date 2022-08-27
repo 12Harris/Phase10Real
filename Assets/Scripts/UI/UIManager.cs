@@ -14,10 +14,9 @@ public class UIManager : NetworkBehaviour
     GameObject cardArea;
     GameObject middleCanvas;
     public GameObject discardCard;
+    public GameObject UIDeck;
 
     public static UIManager instance;
-
-    [SyncVar] public Color color;
 
     void Awake()
     {
@@ -43,8 +42,31 @@ public class UIManager : NetworkBehaviour
         RpcSetDiscardCard(discardCard);
 
         RpcParentCardToMiddleCanvas(discardCard);
+    }
 
 
+    public void SpawnUIDeck()
+    {
+        UIDeck = InstantiateUICardfromCard(CardManager.instance.cards[0]);
+
+        //the deck cards are not visible to the player
+        UIDeck.GetComponent<UICardData>().text = "";
+        UIDeck.GetComponent<UICardData>().color = new Color(127,127,127);
+        UIDeck.GetComponent<UICardData>().color.a = 0.5f;
+
+        UIDeck.transform.position = new Vector3(700,0f,0f);
+
+        NetworkServer.Spawn(UIDeck);
+
+        RpcSetUIDeck(UIDeck);
+
+        RpcParentCardToMiddleCanvas(UIDeck);
+    }
+
+    [ClientRpc]
+    void RpcSetUIDeck(GameObject UIDeck)
+    {
+        this.UIDeck = UIDeck;
     }
 
     [ClientRpc]
@@ -67,6 +89,11 @@ public class UIManager : NetworkBehaviour
 
         return uiCard;
         
+    }
+
+    public void UpdateUIDeck()
+    {
+        //SetUICardDetails(UIDeck, CardManager.instance.cards[0]);
     }
 
     public void UpdateDiscardPile()
@@ -110,35 +137,6 @@ public class UIManager : NetworkBehaviour
         GameObject uiCard = Instantiate(UICard) as GameObject;
 
         SetUICardDetails(uiCard, card);
-
-        /*if(card.IsJoker)
-            uiCard.GetComponent<UICardData>().text = "JOKER";
-        
-        else if(card.IsSkipCard)
-            uiCard.GetComponent<UICardData>().text = "SKIPCARD";
-
-        else
-            uiCard.GetComponent<UICardData>().text = card.Number.ToString();
-
-        switch(card.Color)
-        {
-            case "red":
-                uiCard.GetComponent<UICardData>().color = new Color(255,0,0);
-                break;
-            case "green":
-                uiCard.GetComponent<UICardData>().color = new Color(0,255,0);
-                break;
-            case "blue":
-                uiCard.GetComponent<UICardData>().color = new Color(0,0,255);
-                break;
-            case "yellow":
-                uiCard.GetComponent<UICardData>().color = new Color(255,255,0);
-                break;
-            default:
-                uiCard.GetComponent<UICardData>().color = new Color(127,127,127);
-                break;
-        }*/
-
         return uiCard;
     }
 

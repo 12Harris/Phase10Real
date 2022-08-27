@@ -92,15 +92,18 @@ public class CardManager : NetworkBehaviour
                 if(Players[1].hasAuthority)   
                     Players[1].AddedCardsToHand();
 
-
-                //put the top card of the deck on the table
                 if(isServer)
                 {
+                    //put the top card of the deck on the table
                     UIManager.instance.SpawnMiddleCanvas();
                     Card card = cards[0];
                     cards.Remove(card);//Only the server removes cards
                     UIManager.instance.SpawnDiscardCard(card);
                     discardPile.Push(card);
+                    
+                    //spawn the ui deck next to the discard pile
+                    UIManager.instance.SpawnUIDeck();
+
                 }
 
                     //currentPlayer.Play();
