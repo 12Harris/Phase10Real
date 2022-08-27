@@ -73,8 +73,7 @@ public class CardManager : NetworkBehaviour
             if(cardsDelivered == false)
             {
                 cardsDelivered = true;
-                currentPlayer = Players[0];
-
+                
                 if(isServer)
                     DeliverCards();
 
@@ -102,18 +101,22 @@ public class CardManager : NetworkBehaviour
                     cards.Remove(card);//Only the server removes cards
                     UIManager.instance.SpawnDiscardCard(card);
                     discardPile.Push(card);
-                    //currentPlayer.Play();
                 }
-                
 
+                    //currentPlayer.Play();
+                
                 //The current player draws a card from the deck or from the middle canvas
 
                 //Players[0].ShowHand();
-                //Players[1].ShowHand();             
+                //Players[1].ShowHand(); 
+                currentPlayer = Players[0];          
             }
-            currentPlayer.Play();
+
+             if(currentPlayer.hasAuthority) 
+                    currentPlayer.Play();  
         }
     }
+
 
     //Deliver 10 cards to the player and remove them from the deck
     //[Server]

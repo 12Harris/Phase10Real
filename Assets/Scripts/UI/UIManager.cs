@@ -69,16 +69,49 @@ public class UIManager : NetworkBehaviour
         
     }
 
-    public void UpdateDiscardCard(Card card)
+    public void UpdateDiscardPile()
     {
+        SetUICardDetails(discardCard, CardManager.instance.discardPile.Peek());
+    }
 
+    public void SetUICardDetails(GameObject cardUi, Card card)
+    {
+        if(card.IsJoker)
+            cardUi.GetComponent<UICardData>().text = "JOKER";
+        
+        else if(card.IsSkipCard)
+            cardUi.GetComponent<UICardData>().text = "SKIPCARD";
+
+        else
+            cardUi.GetComponent<UICardData>().text = card.Number.ToString();
+
+        switch(card.Color)
+        {
+            case "red":
+                cardUi.GetComponent<UICardData>().color = new Color(255,0,0);
+                break;
+            case "green":
+                cardUi.GetComponent<UICardData>().color = new Color(0,255,0);
+                break;
+            case "blue":
+                cardUi.GetComponent<UICardData>().color = new Color(0,0,255);
+                break;
+            case "yellow":
+                cardUi.GetComponent<UICardData>().color = new Color(255,255,0);
+                break;
+            default:
+                cardUi.GetComponent<UICardData>().color = new Color(127,127,127);
+                break;
+        }
     }
 
     public GameObject InstantiateUICardfromCard(Card card)
     {
         GameObject uiCard = Instantiate(UICard) as GameObject;
 
-        if(card.IsJoker)
+        SetUICardDetails(uiCard, card);
+
+        /*if(card.IsJoker)
             uiCard.GetComponent<UICardData>().text = "JOKER";
         
         else if(card.IsSkipCard)
@@ -104,7 +137,7 @@ public class UIManager : NetworkBehaviour
             default:
                 uiCard.GetComponent<UICardData>().color = new Color(127,127,127);
                 break;
-        }
+        }*/
 
         return uiCard;
     }

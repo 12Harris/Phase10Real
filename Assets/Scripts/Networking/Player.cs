@@ -27,6 +27,8 @@ public class Player : NetworkBehaviour
 
     UICardData card;
 
+    Card discardCard;
+
     public GameObject handDisplayPrefab;
 
     GameObject handDisplay;
@@ -55,20 +57,44 @@ public class Player : NetworkBehaviour
 
     public void Play()
     {
+        //If we click on the top dicardCard from the sicard pile we remove it from it
         if(UIManager.instance.discardCard.GetComponent<DragDrop>().clicked)
         {
-            Card discardCard = CardManager.instance.discardPile.Pop();
+            cmdPopCardFromDiscardPile();
 
             AddCardToHand(discardCard);
 
-            //If the pile has conains more than 1 discard card then update it
-            if(CardManager.instance.discardPile.Count > 0)
-            {
-                UIManager.instance.UpdateDiscardCard(CardManager.instance.discardPile.Peek());
-            }
+            //If the discard pile has conains more than 1 card then update it
+
+             if(CardManager.instance.discardPile.Count > 0)
+                UIManager.instance.UpdateDiscardPile();
+            
+            else
+                rpcDeactivateDiscardCard();
 
             UIManager.instance.discardCard.GetComponent<DragDrop>().clicked = false;
         }
+        Debug.Log("Player " + name + " is playing");
+    }
+
+    [Command]
+    public void cmdPopCardFromDiscardPile()
+    {
+        discardCard = CardManager.instance.discardPile.Pop();
+
+        rpcSetDiscardCard(discardCard);
+    }
+
+    [ClientRpc]
+    public void rpcSetDiscardCard(Card card)
+    {
+        discardCard = card;
+    }
+
+    [ClientRpc]
+    public void rpcDeactivateDiscardCard()
+    {
+        UIManager.instance.discardCard.SetActive(false);
     }
 
     public void AddCardToHand(Card card)
