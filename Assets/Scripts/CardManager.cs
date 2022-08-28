@@ -35,7 +35,7 @@ public class CardManager : NetworkBehaviour
 
     public List<GameObject> CardAreas;
 
-    Player currentPlayer;
+    public Player currentPlayer;
 
     public void Awake()
     {
@@ -73,7 +73,13 @@ public class CardManager : NetworkBehaviour
             if(cardsDelivered == false)
             {
                 cardsDelivered = true;
-                
+
+                if(isServer)
+                {
+                    UIManager.instance.SpawnButton(new Vector3 (0,0,0),0, "Draw Card From Discard Pile");
+                    UIManager.instance.SpawnButton(new Vector3 (1000,0,0),1,"Draw Card from Deck");
+                }
+
                 if(isServer)
                     DeliverCards();
 
@@ -112,14 +118,29 @@ public class CardManager : NetworkBehaviour
 
                 //Players[0].ShowHand();
                 //Players[1].ShowHand(); 
-                currentPlayer = Players[0];          
-            }
-
-             if(currentPlayer.hasAuthority) 
-                    currentPlayer.Play();  
+                currentPlayer = Players[1];          
+            } 
         }
     }
 
+    public void swapPlayers()
+    {
+        //rpcSwapPlayers();
+    }
+
+    [ClientRpc]
+    public void rpcSwapPlayers()
+    {
+        if(currentPlayer == Players[0])
+            currentPlayer = Players[1];
+        else
+            currentPlayer = Players[0];
+    }
+
+    public void PushCardToDiscardPile(Card card)
+    {
+        discardPile.Push(card);
+    }
 
     //Deliver 10 cards to the player and remove them from the deck
     //[Server]

@@ -9,7 +9,6 @@ using System;
 
 public class UICardData : NetworkBehaviour
 {
-    private Player player;
 
     [SyncVar(hook = nameof(SetColor))] public Color color;
 
@@ -34,6 +33,11 @@ public class UICardData : NetworkBehaviour
         {
             active = true;
         }
+    }
+
+    private void OnDestroy()
+    {
+        DragDrop.OnStartedDrag -= onStartedDrag;
     }
 
     void SetColor(Color oldColor, Color newColor)

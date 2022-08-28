@@ -13,12 +13,17 @@ public class DragDrop : NetworkBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public static event Action<GameObject> OnStartedDrag;
     public Vector3 lastPosition;
     public bool clicked;
+    public bool dropped = false;
+
+    private CanvasGroup canvasGroup;
+
 
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         lastPosition = transform.position;
         clicked = false;
+        canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -42,6 +47,7 @@ public class DragDrop : NetworkBehaviour, IBeginDragHandler, IDragHandler, IEndD
             //startedDragging = true;
             //Debug.Log("started dragging");
             OnStartedDrag?.Invoke(this.gameObject);
+            canvasGroup.blocksRaycasts = false;
         }
     }
 
@@ -75,6 +81,8 @@ public class DragDrop : NetworkBehaviour, IBeginDragHandler, IDragHandler, IEndD
             worldPos.z = transform.position.z;
             transform.position = worldPos;*/
             dragging = false;
+            Debug.Log("on end drag");
+            canvasGroup.blocksRaycasts = true;
         }
     }
 }

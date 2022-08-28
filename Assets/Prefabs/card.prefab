@@ -228,6 +228,7 @@ GameObject:
   - component: {fileID: 5235425851246857661}
   - component: {fileID: 1020467715144882513}
   - component: {fileID: 514757092702976546}
+  - component: {fileID: 2350311770593019097}
   m_Layer: 5
   m_Name: card
   m_TagString: Untagged
@@ -374,6 +375,8 @@ MonoBehaviour:
   syncInterval: 0.1
   dragging: 0
   lastPosition: {x: 0, y: 0, z: 0}
+  clicked: 0
+  dropped: 0
 --- !u!114 &514757092702976546
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -387,7 +390,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  syncInterval: 0.1
+  syncInterval: 0
   clientAuthority: 1
   sendInterval: 0.05
   syncPosition: 1
@@ -408,6 +411,18 @@ MonoBehaviour:
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+--- !u!225 &2350311770593019097
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4393616284933060602}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5561995956876132353
 GameObject:
   m_ObjectHideFlags: 0

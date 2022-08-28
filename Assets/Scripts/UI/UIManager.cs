@@ -9,12 +9,12 @@ using System;
 public class UIManager : NetworkBehaviour
 {
     public GameObject cardAreaPrefab;
-    public GameObject middleCanvasPrefab;
     public GameObject UICard;
     GameObject cardArea;
     GameObject middleCanvas;
     public GameObject discardCard;
     public GameObject UIDeck;
+    public GameObject ButtonPrefab;
 
     public static UIManager instance;
 
@@ -29,8 +29,36 @@ public class UIManager : NetworkBehaviour
         CardManager.OnSpawnCards += SpawnCards;
     }
 
+    public void SpawnButton(Vector3 position,int index,string text)
+    {   
+
+        foreach(Player player in CardManager.instance.Players)
+        {
+            GameObject Button = Instantiate(ButtonPrefab) as GameObject;
+
+            //uiCard.transform.position = position
+
+            Button.transform.localPosition = position;
+
+            Button.GetComponent<Button>().index = index;
+            Button.GetComponent<Button>().text = text;
+
+            NetworkServer.Spawn(Button, player.connectionToClient);
+
+            RpcDeactivateButton(player, Button);
+        }
+    }
+
+    [ClientRpc] 
+    void RpcDeactivateButton(Player player, GameObject button)
+    {
+        if(!player.hasAuthority)
+            button.SetActive(false);
+    }
+
     public void SpawnDiscardCard(Card card)
     {
+        
         discardCard = InstantiateUICardfromCard(card);
 
         //uiCard.transform.position = position
@@ -51,14 +79,14 @@ public class UIManager : NetworkBehaviour
 
         //the deck cards are not visible to the player
         UIDeck.GetComponent<UICardData>().text = "";
-        UIDeck.GetComponent<UICardData>().color = new Color(127,127,127);
+        UIDeck.GetComponent<UICardData>().color = new Color(0,127,127);
         UIDeck.GetComponent<UICardData>().color.a = 0.5f;
 
         UIDeck.transform.position = new Vector3(700,0f,0f);
 
         NetworkServer.Spawn(UIDeck);
 
-        RpcSetUIDeck(UIDeck);
+        //RpcSetUIDeck(UIDeck);
 
         RpcParentCardToMiddleCanvas(UIDeck);
     }
@@ -75,6 +103,24 @@ public class UIManager : NetworkBehaviour
         this.discardCard = discardCard;
     }
 
+    [Server]
+    public GameObject SpawnCardAtPosition(Card card, Vector3 position)
+    {
+        GameObject uiCard = InstantiateUICardfromCard(card);
+
+        //uiCard.transform.position = position
+
+        uiCard.transform.position = position;
+
+        NetworkServer.Spawn(uiCard);
+
+        rpcSetCardInitialPosition(uiCard);
+
+        return uiCard;
+        
+    }
+
+    [Server]
     public GameObject SpawnCardAtPosition(Player player, Card card, Vector3 position)
     {
         GameObject uiCard = InstantiateUICardfromCard(card);
@@ -85,6 +131,8 @@ public class UIManager : NetworkBehaviour
 
         NetworkServer.Spawn(uiCard,player.connectionToClient);
 
+        rpcSetCardInitialPosition(uiCard);
+
         RpcParentCardToCanvas(player,uiCard);
 
         return uiCard;
@@ -93,16 +141,23 @@ public class UIManager : NetworkBehaviour
 
     public void UpdateUIDeck()
     {
-        //SetUICardDetails(UIDeck, CardManager.instance.cards[0]);
+        SetUICardDetails(UIDeck, CardManager.instance.cards[0]);
     }
 
     public void UpdateDiscardPile()
     {
-        SetUICardDetails(discardCard, CardManager.instance.discardPile.Peek());
+       rpcUpdateDiscardPile();
+    }
+
+    public void rpcUpdateDiscardPile()
+    {
+        Card card = CardManager.instance.discardPile.Peek();
+        SetUICardDetails(discardCard, card);
     }
 
     public void SetUICardDetails(GameObject cardUi, Card card)
     {
+
         if(card.IsJoker)
             cardUi.GetComponent<UICardData>().text = "JOKER";
         
