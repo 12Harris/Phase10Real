@@ -48,7 +48,7 @@ public class Player : NetworkBehaviour
     //[SyncVar (hook = nameof(ShowHand))] public bool HandCardsChanged = false;
     [SyncVar] public bool HandCardsChanged = false;
     PhaseChecker currentPhase;
-    public List<CardSlot> cardSlots;
+    public List<CardSlot> phaseSlots;
     public List<GameObject> phaseCards;
 
     public void Awake()
@@ -68,65 +68,73 @@ public class Player : NetworkBehaviour
 
         if(cardSlot.slotType == CardSlot.SlotType.PHASESLOT)
         {
-            if(!cardSlots.Contains(cardSlot))
-            {
 
-                cardSlots.Add(cardSlot);
+            if(cardSlot.slotCard != null)
+            {
+                Debug.Log("cardslot already has a card!");
+                card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+                return;
             }
 
-            if(currentPhase.cards.Count < currentPhase.maxCount)
+            if(cardSlot.index > currentPhase.cards.Count)
             {
-                if(selectedCard == null) Debug.Log("selected card is null");
-                currentPhase.cards.Add(selectedCard);
-                Debug.Log("current phase has: " + currentPhase.cards.Count);
-                phaseCards.Add(card);
+                Debug.Log("cant put card into this slot!");
+                card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+                return;
+            }
 
-                if(currentPhase.cards.Count > 2)
+            if(currentPhase.cards.Count > 0)
+            {
+                if(currentPhase.CheckCards(card) == false)
                 {
-                    bool eval = currentPhase.Evaluate();
-                    if(eval == false)
-                    {
-                        Debug.Log("After eval: current phase has: " + currentPhase.cards.Count);
-                        UpdateCardSlots();
-                    }
+                    Debug.Log("the cards dont match!");
+
+                    if(currentPhase.cards.Count == 0)
+                        RemovePhaseSlotCards();
+
+                    card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+
+                    return;
                 }
             }
 
-            //card.transform.position = cardSlot.transform.position;
+            cardSlot.SetCard(card);
+
+            //if(!phaseSlots.Contains(cardSlot))
+            {
+                phaseSlots.Add(cardSlot);
+            }
+
+            currentPhase.cards.Add(selectedCard);
         }
+
+
         else if(cardSlot.slotType == CardSlot.SlotType.DISCARDPILESLOT)
         {         
+            //We have to remove all cards from the phase slots before we can make the final move
+            if(currentPhase.cards.Count > 0)
+            {   
+                Debug.Log("currentPase has more than 0 cards");
+                card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+                return;
+            }
             pushCardToDiscardPile = true;
             cmdPushCardToDiscardPile(selectedCard);
             cmdUpdateDiscardPile();         
         }
     }
 
-    private void UpdateCardSlots()
+    private void RemovePhaseSlotCards()
     {
-        if(currentPhase.cards.Count == 0)
+        for(int i = 0; i < phaseSlots.Count; i++)
         {
-            Debug.Log("current phase has 0 cards");
-            Debug.Log("There are " + phaseCards.Count + " phase cards");
-            for(int i = 0; i < cardSlots.Count; i++)
-            {
-                //cardSlots[i].ResetCard();
-                GameObject card = phaseCards[i];
-                phaseCards.Remove(phaseCards[i]);
-                CmdDestroyObject(card);
-            }
-            return;
+            phaseSlots[i].slotCard.transform.localPosition = phaseSlots[i].slotCard.GetComponent<UICardData>().InitialPosition;
+            phaseSlots[i].ResetCard();
         }
 
-        for(int i = 0; i < currentPhase.minCount; i++)
-        {
-            cardSlots[i].SetCard(phaseCards[i]);
-        }
-        for(int i = currentPhase.minCount; i < currentPhase.cards.Count; i++)
-        {
-            phaseCards.Remove(phaseCards[i]);
-            CmdDestroyObject(phaseCards[i]);
-        }
+        while(phaseSlots.Count > 0)
+            phaseSlots.Remove(phaseSlots[0]);
+
     }
 
     [Command]
@@ -311,11 +319,8 @@ public class Player : NetworkBehaviour
 
         if(hasAuthority)
         {
-            //selectedUICard.GetComponent<DragDrop>().enabled = false;
-            //selectedUICard.GetComponent<UICardData>().enabled = false;
             CmdDestroyObject(selectedUICard);
             cmdSetSelectedUICard(UIHand[0]);
-            //selectedUICard = UIHand[0];
         }
 
 

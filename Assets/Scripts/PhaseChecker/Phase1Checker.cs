@@ -8,6 +8,23 @@ public class Phase1Checker : PhaseChecker
 {   
     public Phase1Checker(int maxCount) : base(maxCount) {nextPhaseChecker = new Phase2Checker(maxCount);}
 
+    public override bool CheckCards(GameObject card)
+    {
+        if(cards.Count > 3) checkIndex = 3;
+
+        int number;
+
+        int.TryParse(card.GetComponent<UICardData>().text, out number);
+
+        if(number != cards[checkIndex].Number)
+        {
+            DeleteCards();
+            return false;
+        }
+
+        return true;
+    }
+
     public override bool Evaluate()
     {
         Debug.Log("cards[0] = " + cards[0].Color  + ", " + cards[0].Number);
@@ -30,7 +47,7 @@ public class Phase1Checker : PhaseChecker
             return false;
         }
         
-        minCount = 3;
+        checkIndex = 3;
 
         if(cards.Count < 6) return false;
         

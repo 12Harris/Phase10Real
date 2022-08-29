@@ -8,13 +8,21 @@ public abstract class PhaseChecker
 
     public abstract bool Evaluate();
 
+    public abstract bool CheckCards(GameObject card);
+
+    public void DeleteCards()
+    {
+        while(cards.Count > 0)
+            cards.Remove(cards[0]);
+    }
+
     public PhaseChecker nextPhaseChecker;
 
-    public int minCount, maxCount;
+    public int checkIndex, maxCount;
 
     public PhaseChecker(int maxCount)
     {
-        minCount = 0;
+        checkIndex = 0;
         this.maxCount = maxCount;
         cards = new List<Card>();
     } 

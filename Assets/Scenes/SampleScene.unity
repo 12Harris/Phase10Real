@@ -388,6 +388,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 0
 --- !u!114 &182412009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -601,6 +602,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 0
 --- !u!114 &418006379
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -738,6 +740,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 0
 --- !u!114 &456953008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1027,6 +1030,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 0
 --- !u!114 &635138276
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1164,6 +1168,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 2
 --- !u!114 &665287571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1747,6 +1752,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 1
   slotCard: {fileID: 0}
+  index: 0
 --- !u!114 &936031149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2127,6 +2133,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 0
 --- !u!114 &996201698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2226,6 +2233,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 0
 --- !u!114 &1139403719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2363,6 +2371,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 0
   slotCard: {fileID: 0}
+  index: 0
 --- !u!114 &1139853320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2500,6 +2509,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 1
 --- !u!114 &1156781767
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2637,6 +2647,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 4
 --- !u!114 &1253203295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2774,6 +2785,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 0
 --- !u!114 &1365379440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3206,6 +3218,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 3
 --- !u!114 &1682430507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3419,6 +3432,7 @@ MonoBehaviour:
   syncInterval: 0.1
   slotType: 2
   slotCard: {fileID: 0}
+  index: 5
 --- !u!114 &1962435237
 MonoBehaviour:
   m_ObjectHideFlags: 0

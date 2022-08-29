@@ -17,8 +17,9 @@ public class CardSlot : NetworkBehaviour, IDropHandler
 
     public static event Action<CardSlot, GameObject> OnDropEvent;
 
-    public GameObject slotCard;
-    
+    public GameObject slotCard; //should be card object
+
+    public int index = 0;
 
     public void OnDrop(PointerEventData eventData)
     {
@@ -34,6 +35,12 @@ public class CardSlot : NetworkBehaviour, IDropHandler
     public void SetCard(GameObject card)
     {
         slotCard = card;
+        slotCard.transform.position = transform.position;
+    }
+
+    public void SetCard(Card card)
+    {
+        UIManager.instance.SetUICardDetails(slotCard,card);
     }
 
     public void ResetCard()

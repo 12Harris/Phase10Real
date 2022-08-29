@@ -6,6 +6,11 @@ public class Phase2Checker : PhaseChecker
 {
     public Phase2Checker(int maxCount) : base(maxCount) {}
 
+    public override bool CheckCards(GameObject card)
+    {
+        return false;
+    }
+
     public override bool Evaluate()
     {
         return false;
