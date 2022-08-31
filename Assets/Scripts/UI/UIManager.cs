@@ -262,6 +262,9 @@ public class UIManager : NetworkBehaviour
                 NetworkServer.Spawn(card);
                 rpcSetCardInitialPosition(card);
                 RpcParentCardToCanvas(player, card);
+
+                //card.transform.position = new Vector3(xOffset-200,0f,0f);
+
                 xOffset += 200;
                 //card.transform.SetParent(cardArea.transform.Find("CardArea").transform, false);
 
@@ -280,7 +283,7 @@ public class UIManager : NetworkBehaviour
     [ClientRpc]
     void rpcSetCardInitialPosition(GameObject card)
     {
-        card.GetComponent<UICardData>().InitialPosition = card.transform.position;
+        card.GetComponent<UICardData>().InitialPosition = card.transform.localPosition;
     }
 
     [ClientRpc]

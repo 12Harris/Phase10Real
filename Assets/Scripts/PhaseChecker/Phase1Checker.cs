@@ -8,20 +8,23 @@ public class Phase1Checker : PhaseChecker
 {   
     public Phase1Checker(int maxCount) : base(maxCount) {nextPhaseChecker = new Phase2Checker(maxCount);}
 
-    public override bool CheckCards(GameObject card)
+    public override bool CheckCards()
     {
         if(cards.Count > 3) checkIndex = 3;
 
-        int number;
+        //int number;
 
-        int.TryParse(card.GetComponent<UICardData>().text, out number);
+        //int.TryParse(card.GetComponent<UICardData>().text, out number);
 
-        if(number != cards[checkIndex].Number)
+        if(cards[cards.Count-1].Number != cards[checkIndex].Number)//the checkIndex is either 0 for the first set or 3 for the second set
         {
-            DeleteCards();
+            //DeleteCards(checkIndex);
             return false;
         }
 
+        //if(cards.Count == 3 || cards.Count == 6)//we have completed a set so 
+
+        //the slotted card is valid
         return true;
     }
 

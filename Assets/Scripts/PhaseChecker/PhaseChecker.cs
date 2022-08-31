@@ -8,12 +8,12 @@ public abstract class PhaseChecker
 
     public abstract bool Evaluate();
 
-    public abstract bool CheckCards(GameObject card);
+    public abstract bool CheckCards();
 
-    public void DeleteCards()
+    public void DeleteCards(int checkIndex)
     {
-        while(cards.Count > 0)
-            cards.Remove(cards[0]);
+        for(int i = checkIndex; i < cards.Count; i++)
+            cards.Remove(cards[checkIndex]);
     }
 
     public PhaseChecker nextPhaseChecker;

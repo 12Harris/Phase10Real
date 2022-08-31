@@ -50,6 +50,9 @@ public class Player : NetworkBehaviour
     PhaseChecker currentPhase;
     public List<CardSlot> phaseSlots;
     public List<GameObject> phaseCards;
+    public float timer = 0.5f;
+    bool updateCards = false;
+    bool updatePhaseSlotCards = false;
 
     public void Awake()
     {
@@ -66,36 +69,24 @@ public class Player : NetworkBehaviour
 
         card.GetComponent<DragDrop>().dropped = true;
 
+        if(card == null)
+            Debug.Log("card is null");
+
         if(cardSlot.slotType == CardSlot.SlotType.PHASESLOT)
         {
 
             if(cardSlot.slotCard != null)
             {
                 Debug.Log("cardslot already has a card!");
-                card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+                card.transform.position = card.GetComponent<UICardData>().InitialPosition;
                 return;
             }
 
             if(cardSlot.index > currentPhase.cards.Count)
             {
                 Debug.Log("cant put card into this slot!");
-                card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+               card.transform.position = card.GetComponent<UICardData>().InitialPosition;
                 return;
-            }
-
-            if(currentPhase.cards.Count > 0)
-            {
-                if(currentPhase.CheckCards(card) == false)
-                {
-                    Debug.Log("the cards dont match!");
-
-                    if(currentPhase.cards.Count == 0)
-                        RemovePhaseSlotCards();
-
-                    card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
-
-                    return;
-                }
             }
 
             cardSlot.SetCard(card);
@@ -106,6 +97,42 @@ public class Player : NetworkBehaviour
             }
 
             currentPhase.cards.Add(selectedCard);
+
+            cmdRemoveSelectedCardFromUIHand();
+            cmdRemoveSelectedCardFromHand();
+            cmdSetSelectedCardIndex(0);
+
+
+            /*if(currentPhase.cards.Count > currentPhase.checkIndex+1)
+            {
+                if(currentPhase.CheckCards() == false)
+                {
+                    Debug.Log("the cards dont match!");
+                    Debug.Log("ui hand has " + UIHand.Count + " cards");
+                    Debug.Log("hand has " + Hand.Count + " cards");
+
+                    //if(currentPhase.cards.Count == 0)
+                    //StartCoroutine(UpdatePhaseSlotCards());
+  
+                    for(int i = currentPhase.checkIndex; i < phaseSlots.Count; i++)
+                    {
+                        AddCardToHand(currentPhase.cards[i],phaseSlots[i].slotCard) ; //HERE I AM.............................................................//
+                        //UIHand[Hand.Count-3].transform.Find("Highlight").gameObject.SetActive(true);
+                    }
+                    updatePhaseSlotCards = true;
+                    //Add the cards back to the ui hand
+
+                    //card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+
+                    return;
+                }
+            }*/
+
+            //currentPhase.cards.Add(selectedCard);
+            Debug.Log("Removing card " + selectedCardIndex + " from hand");
+
+            //Reposition the ui hand cards
+            //RepositionUIHandCards();
         }
 
 
@@ -114,26 +141,39 @@ public class Player : NetworkBehaviour
             //We have to remove all cards from the phase slots before we can make the final move
             if(currentPhase.cards.Count > 0)
             {   
-                Debug.Log("currentPase has more than 0 cards");
-                card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+                card.transform.position = card.GetComponent<UICardData>().InitialPosition;
                 return;
             }
             pushCardToDiscardPile = true;
             cmdPushCardToDiscardPile(selectedCard);
             cmdUpdateDiscardPile();         
         }
+
+        
     }
 
-    private void RemovePhaseSlotCards()
+    private void RepositionUIHandCards()
     {
-        for(int i = 0; i < phaseSlots.Count; i++)
+        Debug.Log("I have " + UIHand.Count + "cards on my hand.");//hand should exclude these cards at this point
+        
+        for(int i = selectedCardIndex; i < UIHand.Count; i++)
         {
-            phaseSlots[i].slotCard.transform.localPosition = phaseSlots[i].slotCard.GetComponent<UICardData>().InitialPosition;
-            phaseSlots[i].ResetCard();
+            UIHand[i].transform.position = new Vector3(UIHand[i].transform.position.x-200, UIHand[i].transform.position.y, UIHand[i].transform.position.z);
+            UIHand[i].GetComponent<UICardData>().InitialPosition = UIHand[i].transform.position;
         }
+    }
 
-        while(phaseSlots.Count > 0)
-            phaseSlots.Remove(phaseSlots[0]);
+    private void UpdatePhaseSlotCards()
+    {
+        //yield return new WaitForSeconds(.2f);
+
+        UIHand[Hand.Count-1].transform.Find("Highlight").gameObject.SetActive(true);
+      
+
+        UIHand[Hand.Count-1].transform.position = UIHand[Hand.Count-2].GetComponent<UICardData>().InitialPosition +  new Vector3(200,0,0);
+        UIHand[Hand.Count-1].GetComponent<UICardData>().InitialPosition =  UIHand[Hand.Count-1].transform.position;
+        
+        //updatePhaseSlotCards = false;
 
     }
 
@@ -225,6 +265,12 @@ public class Player : NetworkBehaviour
 
             cmdDrawCardFromDeck();
         }
+
+        //attempt to reset the current players move
+        else if(button.index == 2)
+        {
+            cmdResetMove();
+        }
     }
 
     public void Start()
@@ -242,6 +288,21 @@ public class Player : NetworkBehaviour
     public void Play()
     {
     }
+
+    public GameObject getHandCardAtIndex(int index)
+    {
+        if(index < 0  || index >= UIHand.Count)
+            return null;
+
+        return UIHand[index];
+    }
+
+    [Command]
+    public void cmdResetMove()
+    {
+
+    }
+
 
     [Command]
     public void cmdDrawCardFromDeck()
@@ -298,6 +359,13 @@ public class Player : NetworkBehaviour
         HandCardsChanged = true;
     }
 
+    [Command]
+    private void AddCardToHand(Card card, GameObject uiCard)
+    {
+        AddCardToUIHand(uiCard);
+        Hand.Add(card);
+    }
+
     [ClientRpc]
     void AddCardToUIHand(GameObject card)
     {
@@ -316,20 +384,6 @@ public class Player : NetworkBehaviour
         Debug.Log("removing selected ui card");
         //if(selectedUICard == null) Debug.Log("card to remove is null");
         UIHand.Remove(selectedUICard);
-
-        if(hasAuthority)
-        {
-            CmdDestroyObject(selectedUICard);
-            cmdSetSelectedUICard(UIHand[0]);
-        }
-
-
-    }
-
-    [Command]
-    public void cmdRemoveCardFromHand(Card card)
-    {
-        if(Hand.Remove(selectedCard)) Debug.Log("remove op succeded");
     }
 
      [Command]
@@ -399,13 +453,19 @@ public class Player : NetworkBehaviour
         if(i > 0) leftCard = UIHand[i-1];
         if(i < UIHand.Count-1) rightCard = UIHand[i+1];
 
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+         worldPos.z = card.transform.position.z;
+
         if(card.GetComponent<DragDrop>().dragging)
         {
+
+            Debug.Log("dragging card");
             //selectedCard = Hand[i];
             cmdSetSelectedCard(Hand[i]);
             cmdSetSelectedCardIndex(i);
             cmdSetSelectedUICard(UIHand[i]);
             
+
             if(playing == false)
             {
                 if(leftCard != null)
@@ -423,6 +483,9 @@ public class Player : NetworkBehaviour
                         
                         card.transform.localPosition = leftCard.transform.localPosition;
                         leftCard.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+
+                        //card.transform.position = leftCard.transform.position;
+                        //leftCard.transform.position = card.GetComponent<UICardData>().InitialPosition;
 
                         Vector3 temp = leftCard.GetComponent<UICardData>().InitialPosition;
                         leftCard.GetComponent<UICardData>().InitialPosition = card.GetComponent<UICardData>().InitialPosition;
@@ -451,6 +514,10 @@ public class Player : NetworkBehaviour
                         UIHand[i].transform.localPosition = rightCard.transform.localPosition;
                         rightCard.transform.localPosition = UIHand[i].GetComponent<UICardData>().InitialPosition;
 
+                        //Hand[i].transform.position = rightCard.transform.position;
+                        //rightCard.transform.position = UIHand[i].GetComponent<UICardData>().InitialPosition;
+
+
                         Vector3 temp = rightCard.GetComponent<UICardData>().InitialPosition;
                         rightCard.GetComponent<UICardData>().InitialPosition = card.GetComponent<UICardData>().InitialPosition;
                         card.GetComponent<UICardData>().InitialPosition = temp;
@@ -467,8 +534,7 @@ public class Player : NetworkBehaviour
                 }
             }
 
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            worldPos.z = card.transform.position.z;
+            
             //card.transform.position = new Vector3(worldPos.x,card.transform.position.y,worldPos.z);
             if(playing == false)
                 card.transform.position = new Vector3(worldPos.x,card.transform.position.y,worldPos.z);
@@ -488,19 +554,16 @@ public class Player : NetworkBehaviour
                     if(rightCard != null) rightCard.transform.Find("Highlight").gameObject.SetActive(false);
 
                     card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+                    //card.transform.position = card.GetComponent<UICardData>().InitialPosition;
                 }
                 else
                 {
                     if(card.GetComponent<DragDrop>().dropped == false)
                     {
+                        Debug.Log("GRRRMPF!!");
                         card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
                     }
-                    else
-                    {
-                       
-                    }
                 }
-
                 //selectedCard = null;
                 card.GetComponent<UICardData>().active = false;
             }
@@ -511,11 +574,34 @@ public class Player : NetworkBehaviour
     {
         if(hasAuthority)
         {
+            
+            /*if(updatePhaseSlotCards)
+            {
+                for(int i = currentPhase.checkIndex; i < phaseSlots.Count; i++)
+                {
+                    
+                    phaseSlots[i].slotCard.transform.position = UIHand[Hand.Count-3].GetComponent<UICardData>().InitialPosition +  new Vector3(200 * i+1,0,0);
+                    //phaseSlots[i].ResetCard();
+                }
+
+                for(int i = currentPhase.checkIndex; i < phaseSlots.Count; i++)
+                    phaseSlots.Remove(phaseSlots[0]);
+                updatePhaseSlotCards = false;
+            }*/
+
+            timer -= Time.deltaTime;
+            if(timer < 0.0)
+            {
+                timer = 0.5f;
+                //Debug.Log("I have " + UIHand.Count + " cards on my hand");
+            }
 
             if(selectedCard != null && pushCardToDiscardPile == true)
             {
                 cmdRemoveSelectedCardFromHand();
                 cmdRemoveSelectedCardFromUIHand();
+                CmdDestroyObject(selectedUICard);
+                cmdSetSelectedUICard(UIHand[0]);
                 //CmdDestroyObject(selectedUICard);
                 pushCardToDiscardPile = false;
 
@@ -563,5 +649,67 @@ public class Player : NetworkBehaviour
 
             handDisplay.GetComponent<TextMeshPro>().text += text + '\n';
         }
+        
+        Debug.Log("Hand changed:" + op);
+        Debug.Log("There are "+  UIHand.Count + " cards on my hand");
+
+        switch (op)
+        {
+            case SyncList<Card>.Operation.OP_ADD:
+                // index is where it was added into the list
+                // newItem is the new item
+                Debug.Log("Card was added to list");
+                if(updatePhaseSlotCards)
+                    UpdatePhaseSlotCards();
+                    //StartCoroutine(UpdatePhaseSlotCards());
+                break;
+
+            case SyncList<Card>.Operation.OP_INSERT:
+                // index is where it was inserted into the list
+                // newItem is the new item
+                break;
+            case SyncList<Card>.Operation.OP_REMOVEAT:
+                Debug.Log("Card was removed at an index");
+                RepositionUIHandCards();
+
+
+                if(currentPhase.cards.Count > currentPhase.checkIndex+1)
+                {
+                    if(currentPhase.CheckCards() == false)
+                    {
+                        Debug.Log("the cards dont match!");
+                        Debug.Log("ui hand has " + UIHand.Count + " cards");
+                        Debug.Log("hand has " + Hand.Count + " cards");
+
+                        //if(currentPhase.cards.Count == 0)
+                        //StartCoroutine(UpdatePhaseSlotCards());
+    
+                        for(int i = currentPhase.checkIndex; i < phaseSlots.Count; i++)
+                        {
+                            AddCardToHand(currentPhase.cards[i],phaseSlots[i].slotCard) ; //HERE I AM.............................................................//
+                            //UIHand[Hand.Count-3].transform.Find("Highlight").gameObject.SetActive(true);
+                        }
+                        updatePhaseSlotCards = true;
+                        //Add the cards back to the ui hand
+
+                        //card.transform.localPosition = card.GetComponent<UICardData>().InitialPosition;
+
+                        return;
+                    }
+                }
+                // index is where it was removed from the list
+                // oldItem is the item that was removed
+                break;
+            case SyncList<Card>.Operation.OP_SET:
+                Debug.Log("Cards have been swapped");
+                // index is of the item that was changed
+                // oldItem is the previous value for the item at the index
+                // newItem is the new value for the item at the index
+                break;
+            case SyncList<Card>.Operation.OP_CLEAR:
+                // list got cleared
+                break;
+        }
     }
+
 }

@@ -77,7 +77,8 @@ public class CardManager : NetworkBehaviour
                 if(isServer)
                 {
                     UIManager.instance.SpawnButton(new Vector3 (0,0,0),0, "Draw Card From Discard Pile");
-                    UIManager.instance.SpawnButton(new Vector3 (1000,0,0),1,"Draw Card from Deck");
+                    UIManager.instance.SpawnButton(new Vector3 (500,0,0),1,"Draw Card from Deck");
+                    UIManager.instance.SpawnButton(new Vector3 (1000,0,0),2,"Reset Move");
                 }
 
                 if(isServer)
